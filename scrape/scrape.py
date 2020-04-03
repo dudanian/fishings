@@ -7,14 +7,14 @@ import requests
 URL = "https://animalcrossing.fandom.com/wiki/Fish_(New_Horizons)#Northern%20Hemisphere"
 
 
-def filename(name):
-    return name.lower().replace(' ', '_').replace('-', '_') + '.png'
+def format_name(name):
+    return name.lower().replace(' ', '_').replace('-', '_')
 
 def get_text(elem):
-    return elem.get_text().strip()
+    return elem.get_text(strip=True)
 
 def get_int(elem):
-    return int(elem.get_text().strip())
+    return int(get_text(elem))
 
 def get_link(elem):
     return elem.a['href']
@@ -40,7 +40,7 @@ def get_fish(elems):
         'image': get_link(elems[1]),
         'price': get_int(elems[2]),
         'location': get_text(elems[3]),
-        'season': get_text(elems[4]),
+        'shadow': get_text(elems[4]),
         'time': get_text(elems[5]),
         'months': get_months(elems[6:]),
     }
@@ -64,14 +64,14 @@ for table in tables:
     for tr in table.find_all('tr')[2:]:
         fish = get_fish(tr.find_all('td'))
 
-        imgname = filename(fish['name'])
-        imgpath = os.path.join(imgdir, imgname)
+        name = format_name(fish['name'])
+        imgpath = os.path.join(imgdir, name+'.png')
         if not os.path.exists(imgpath):
             img = requests.get(fish['image'])
             with open(imgpath, 'wb') as outfile:
                 outfile.write(img.content)
 
-        fish['image'] = imgname
+        fish['image'] = name
         fishes.append(fish)
 
     data[table['title']] = fishes
