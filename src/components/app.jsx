@@ -5,6 +5,18 @@ import fish_data from '../../public/fish';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 
+import { ThemeProvider } from '@material-ui/core/styles'
+import { createMuiTheme } from '@material-ui/core';
+
+
+// No more ripple, on the whole application 💣!
+const theme = createMuiTheme({
+    props: {
+        MuiToggleButton: {
+            disableRipple: true,
+        },
+    },
+});
 
 const HEMISPHERES = ["Northern", "Southern"];
 const LOCATIONS = [...new Set(fish_data.map(v => v.location))].sort();
@@ -42,7 +54,7 @@ export default function App(props) {
 
 
     return (
-        <React.Fragment>
+        <ThemeProvider theme={theme} >
             <div>Hemisphere</div>
             <ToggleButtonGroup
                 exclusive
@@ -88,7 +100,7 @@ export default function App(props) {
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
-            <br/>
+            <br />
             <ToggleButtonGroup
                 exclusive
                 onChange={(_, v) => setMonth(v)}
@@ -104,6 +116,6 @@ export default function App(props) {
                 ))}
             </ToggleButtonGroup>
             <FishTable data={data} />
-        </React.Fragment>
+        </ThemeProvider>
     );
 }
