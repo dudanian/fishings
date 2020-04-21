@@ -14,7 +14,7 @@ const FishRow = React.memo(function(props) {
             <td>{props.fish.price}</td>
             <td>{props.fish.location}</td>
             <td>{props.fish.shadow}</td>
-            <td>{props.fish.time}</td>
+            <td>{props.fish.time.join(' - ')}</td>
         </tr>
     );
 });

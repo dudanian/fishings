@@ -6,8 +6,8 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 
 
-const CATEGORIES = Object.keys(fish_data);
-const LOCATIONS = fish_data[CATEGORIES[0]].map(v => v.location).filter((v, i, a) => a.indexOf(v) === i);
+const HEMISPHERES = ["Northern", "Southern"];
+const LOCATIONS = [...new Set(fish_data.map(v => v.location))].sort();
 const TEMPORALS = ["Leaving", "Coming"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", 'Oct', 'Nov', 'Dec'];
@@ -15,40 +15,42 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 export default function App(props) {
 
-    let [category, setCategory] = React.useState(CATEGORIES[0]);
+    let [hemisphere, setHemisphere] = React.useState(HEMISPHERES[0]);
     let [temporal, setTemporal] = React.useState(null);
     let [location, setLocation] = React.useState(null);
     let [month, setMonth] = React.useState(null);
 
     // filter down the data
-    let data = fish_data[category];
+    let data = fish_data;
 
     if (location) {
         data = data.filter(v => v.location === location);
     }
     if (month) {
-        data = data.filter(v => v.months[MONTHS.indexOf(month)]);
+        let i = MONTHS.indexOf(month);
+        data = data.filter(v => v.months[hemisphere][i]);
+
+        if (temporal === "Leaving") {
+            let j = (i + 1) % MONTHS.length;
+            data = data.filter(v => !v.months[hemisphere][j]);
+        } else if (temporal === "Coming") {
+            let j = (i - 1 + MONTHS.length) % MONTHS.length;
+            data = data.filter(v => !v.months[hemisphere][j]);
+        }
     }
 
-    if (month && temporal === "Leaving") {
-        let i = MONTHS.indexOf(month);
-        let j = (i + 1) % MONTHS.length;
-        data = data.filter(v => v.months[i] && !v.months[j])
-    }
-    if (month && temporal === "Coming") {
-        let i = MONTHS.indexOf(month);
-        let j = (i - 1) % MONTHS.length;
-        data = data.filter(v => v.months[i] && !v.months[j])
-    }
+
 
     return (
         <React.Fragment>
+            <div>Hemisphere</div>
             <ToggleButtonGroup
                 exclusive
-                onChange={(_, v) => { if (v) { setCategory(v) } }}
-                value={category}
+                onChange={(_, v) => { if (v) { setHemisphere(v) } }}
+                value={hemisphere}
+                size='small'
             >
-                {CATEGORIES.map((v, i) => (
+                {HEMISPHERES.map((v, i) => (
                     <ToggleButton
                         key={i}
                         value={v}>
@@ -56,24 +58,12 @@ export default function App(props) {
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
-            <ToggleButtonGroup
-                exclusive
-                onChange={(_, v) => setTemporal(v)}
-                value={temporal}
-            >
-                {TEMPORALS.map((v, i) => (
-                    <ToggleButton
-                        key={i}
-                        value={v}>
-                        {v}
-                    </ToggleButton>
-                ))}
-            </ToggleButtonGroup>
-
+            <div>Location</div>
             <ToggleButtonGroup
                 exclusive
                 onChange={(_, v) => setLocation(v)}
                 value={location}
+                size='small'
             >
                 {LOCATIONS.map((v, i) => (
                     <ToggleButton
@@ -83,11 +73,27 @@ export default function App(props) {
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
-
+            <div>Month</div>
+            <ToggleButtonGroup
+                exclusive
+                onChange={(_, v) => setTemporal(v)}
+                value={temporal}
+                size='small'
+            >
+                {TEMPORALS.map((v, i) => (
+                    <ToggleButton
+                        key={i}
+                        value={v}>
+                        {v}
+                    </ToggleButton>
+                ))}
+            </ToggleButtonGroup>
+            <br/>
             <ToggleButtonGroup
                 exclusive
                 onChange={(_, v) => setMonth(v)}
                 value={month}
+                size='small'
             >
                 {MONTHS.map((v, i) => (
                     <ToggleButton
