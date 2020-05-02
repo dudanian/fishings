@@ -1,6 +1,7 @@
 import React from 'react';
 import FishTable from './table';
 import fish_data from '../../public/fish';
+import bugs_data from '../../public/bugs';
 
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -18,8 +19,10 @@ const theme = createMuiTheme({
     },
 });
 
+const GROUPS = ["Fish", "Bugs"];
 const HEMISPHERES = ["Northern", "Southern"];
-const LOCATIONS = [...new Set(fish_data.map(v => v.location))].sort();
+const FISH_LOCATIONS = [...new Set(fish_data.map(v => v.location))].sort();
+const BUGS_LOCATIONS = [...new Set(bugs_data.map(v => v.location))].sort();
 const TEMPORALS = ["Leaving", "Coming"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", 'Oct', 'Nov', 'Dec'];
@@ -27,14 +30,27 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 export default function App(props) {
 
+    let [group, setGroup] = React.useState(GROUPS[0]);
     let [hemisphere, setHemisphere] = React.useState(HEMISPHERES[0]);
     let [temporal, setTemporal] = React.useState(null);
-    let [location, setLocation] = React.useState(null);
+    let [fishLocation, setFishLocation] = React.useState(null);
+    let [bugsLocation, setBugsLocation] = React.useState(null);
     let [month, setMonth] = React.useState(null);
 
-    // filter down the data
-    let data = fish_data;
+    let data, location, setLocation, LOCATIONS
+    if (group === "Fish") {
+        data = fish_data
+        location = fishLocation
+        setLocation = setFishLocation
+        LOCATIONS = FISH_LOCATIONS
+    } else {
+        data = bugs_data
+        location = bugsLocation
+        setLocation = setBugsLocation
+        LOCATIONS = BUGS_LOCATIONS
+    }
 
+    // filter down the data
     if (location) {
         data = data.filter(v => v.location === location);
     }
@@ -51,10 +67,23 @@ export default function App(props) {
         }
     }
 
-
-
     return (
         <ThemeProvider theme={theme} >
+            <div>Group</div>
+            <ToggleButtonGroup
+                exclusive
+                onChange={(_, v) => { if (v) { setGroup(v) } }}
+                value={group}
+                size='small'
+            >
+                {GROUPS.map((v, i) => (
+                    <ToggleButton
+                        key={i}
+                        value={v}>
+                        {v}
+                    </ToggleButton>
+                ))}
+            </ToggleButtonGroup>
             <div>Hemisphere</div>
             <ToggleButtonGroup
                 exclusive
@@ -115,7 +144,7 @@ export default function App(props) {
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
-            <FishTable data={data} />
+            <FishTable isFish={data === fish_data} data={data} />
         </ThemeProvider>
     );
 }

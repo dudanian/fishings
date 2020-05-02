@@ -3,23 +3,23 @@ import React from 'react';
 import images from '../../public/images/*.png';
 
 
-const FishRow = React.memo(function(props) {
+const Row = React.memo(function (props) {
     return (
         <tr>
-            <td>{props.fish.name}</td>
+            <td>{props.data.name}</td>
             <td><img
-                src={images[props.fish.image]}
-                alt={props.fish.name} />
+                src={images[props.data.image]}
+                alt={props.data.name} />
             </td>
-            <td>{props.fish.price}</td>
-            <td>{props.fish.location}</td>
-            <td>{props.fish.shadow}</td>
-            <td>{props.fish.time.join(' - ')}</td>
+            <td>{props.data.price}</td>
+            <td>{props.data.location}</td>
+            {props.data.shadow && <td>{props.data.shadow}</td>}
+            <td>{props.data.time.join(' - ')}</td>
         </tr>
     );
 });
 
-export default function FishTable(props) {
+export default function Table(props) {
     return (
         <table>
             <thead>
@@ -28,12 +28,12 @@ export default function FishTable(props) {
                     <th>Image</th>
                     <th>Price</th>
                     <th>Location</th>
-                    <th>Shadow</th>
+                    {props.isFish && <th>Shadow</th>}
                     <th>Time</th>
                 </tr>
             </thead>
             <tbody>
-                {props.data.map((v => <FishRow key={v.name} fish={v} />))}
+                {props.data.map((v => <Row key={v.name} data={v} />))}
             </tbody>
         </table>
     );
