@@ -1,26 +1,27 @@
 {
   "name": "fishings",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
-  "main": "index.js",
+  "source": "src/index.html",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html",
+    "start": "parcel",
+    "build": "parcel build",
     "scrape": "python scrape/scrape.py"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@material-ui/core": "^4.9.9",
-    "@material-ui/lab": "^4.0.0-alpha.48",
-    "prop-types": "^15.7.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/material": "^5.3.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@types/react": "^16.9.32",
-    "@types/react-dom": "^16.9.6",
-    "parcel": "^1.12.4",
-    "sass": "^1.26.3"
+    "@parcel/resolver-glob": "^2.2.1",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
+    "parcel": "^2.2.1"
   }
 }

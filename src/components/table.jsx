@@ -1,7 +1,6 @@
 import React from 'react';
 
-import images from '../../public/images/*.png';
-
+import * as images from '../../public/images/*.png';
 
 const Row = React.memo(function (props) {
     return (
@@ -12,9 +11,10 @@ const Row = React.memo(function (props) {
                 alt={props.data.name} />
             </td>
             <td>{props.data.price}</td>
-            <td>{props.data.location}</td>
+            {props.data.location && <td>{props.data.location}</td>}
             {props.data.shadow && <td>{props.data.shadow}</td>}
-            <td>{props.data.time.join(' - ')}</td>
+            {props.data.pattern && <td>{props.data.pattern}</td>}
+            <td>{props.data.time}</td>
         </tr>
     );
 });
@@ -27,8 +27,9 @@ export default function Table(props) {
                     <th>Name</th>
                     <th>Image</th>
                     <th>Price</th>
-                    <th>Location</th>
-                    {props.isFish && <th>Shadow</th>}
+                    {props.hasLocation && <th>Location</th>}
+                    {props.hasShadow && <th>Shadow</th>}
+                    {props.hasPattern && <th>Pattern</th>}
                     <th>Time</th>
                 </tr>
             </thead>

@@ -2,24 +2,26 @@ import React from 'react';
 import FishTable from './table';
 import fish_data from '../../public/fish';
 import bugs_data from '../../public/bugs';
+import creatures_data from '../../public/creatures';
 
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import { ThemeProvider } from '@material-ui/core/styles'
-import { createMuiTheme } from '@material-ui/core';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
 // No more ripple, on the whole application 💣!
-const theme = createMuiTheme({
-    props: {
+const theme = createTheme({
+    components: {
         MuiToggleButton: {
-            disableRipple: true,
-        },
+            defaultProps: {
+                disableRipple: true,
+            },
+        }
     },
 });
 
-const GROUPS = ["Fish", "Bugs"];
+const GROUPS = ["Fish", "Bugs", "Creatures"];
 const HEMISPHERES = ["Northern", "Southern"];
 const FISH_LOCATIONS = [...new Set(fish_data.map(v => v.location))].sort();
 const BUGS_LOCATIONS = [...new Set(bugs_data.map(v => v.location))].sort();
@@ -38,16 +40,22 @@ export default function App(props) {
     let [month, setMonth] = React.useState(null);
 
     let data, location, setLocation, LOCATIONS
+
     if (group === "Fish") {
         data = fish_data
         location = fishLocation
         setLocation = setFishLocation
         LOCATIONS = FISH_LOCATIONS
-    } else {
+    } else if (group === "Bugs") {
         data = bugs_data
         location = bugsLocation
         setLocation = setBugsLocation
         LOCATIONS = BUGS_LOCATIONS
+    } else {
+        data = creatures_data
+        location = null
+        setLocation = () => {}
+        LOCATIONS = ["Ocean"]
     }
 
     // filter down the data
@@ -144,7 +152,7 @@ export default function App(props) {
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
-            <FishTable isFish={data === fish_data} data={data} />
+            <FishTable hasShadow={data !== bugs_data} hasPattern={data === creatures_data} hasLocation={data !== creatures_data} data={data} />
         </ThemeProvider>
     );
 }
