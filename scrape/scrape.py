@@ -8,32 +8,21 @@ from collections import OrderedDict
 
 FISH_URL = "https://animalcrossing.fandom.com/wiki/Fish_(New_Horizons)"
 BUGS_URL = "https://animalcrossing.fandom.com/wiki/Bugs_(New_Horizons)"
+CREATURES_URL = "https://animalcrossing.fandom.com/wiki/Deep-sea_creatures_(New_Horizons)"
 
 ## helper functions
-def format_time(time):
-    def int_val(time):
-        return int(''.join(filter(str.isdigit, time)))
-
-    def pm_offset(time):
-        return 12 if 'pm' in time.lower() else 0
-
-    if '-' in time:
-        return tuple([int_val(x)+pm_offset(x) for x in time.split('-')])
-    else:
-        # all day
-        return (0, 24)
+def format_time(raw_time):
+    # time got really complicated to parse
+    return raw_time
 
 def format_name(name):
     return name.lower().replace(' ', '_').replace('-', '_')
 
 def get_text(elem):
-    def deduplicate_spaces(text):
-        return ' '.join(text.split())
-
-    return deduplicate_spaces(elem.get_text(strip=True))
+    return elem.get_text().strip()
 
 def get_int(elem):
-    return int(get_text(elem))
+    return int(get_text(elem).replace(",", ""))
 
 def get_link(elem):
     return elem.a['href']
@@ -69,9 +58,6 @@ def get_fish(elems):
     if entry['location'] == 'River (Clifftop) Pond':
         entry['location'] = 'River (Clifftop)'
 
-    if entry['location'] == 'Sea(while raining)':
-        entry['location'] = 'Sea (Raining)'
-
     return entry
 
 def get_bug(elems):
@@ -85,6 +71,18 @@ def get_bug(elems):
     }
     return entry
 
+def get_creature(elems):
+    entry = {
+        'name': get_text(elems[0]).title(),
+        'image': get_link(elems[1]),
+        'price': get_int(elems[2]),
+        'shadow': get_text(elems[3]),
+        'pattern': get_text(elems[4]),
+        'time': format_time(get_text(elems[5])),
+        'months': get_months(elems[6:]),
+    }
+    return entry
+
 ## filepaths
 curdir = os.path.dirname(__file__)
 pubdir = os.path.join(curdir, '..', 'public')
@@ -92,26 +90,27 @@ imgdir = os.path.join(pubdir, 'images')
 os.makedirs(imgdir, exist_ok=True)
 
 ## parse tables
-def get_entries(url):
+def get_entries(url, getter):
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
-    tables = soup.find_all("div" ,class_="tabbertab")
+    tables = soup.find_all("div" ,class_="wds-tab__content")
+
+    assert len(tables) == 2
 
     data = OrderedDict()
 
-    for table in tables:
-        hemisphere = table['title'].split()[0]
+    for i, table in enumerate(tables):
+        hemisphere = "Northern" if i == 0 else "Southern"
 
         for tr in table.find_all('tr'):
             elems = tr.find_all('td')
             entry = None
-            if len(elems) == 18:
-                entry = get_fish(elems)
-            elif len(elems) == 17:
-                entry = get_bug(elems)
-            else:
-                # ignore other rows
+            try:
+                entry = getter(elems)
+            except:
+                # ignore errors, probably just an empty row
                 continue
+            
             name = format_name(entry['name'])
 
             # insert (or join)
@@ -136,5 +135,6 @@ def write_json(data, filename):
     with open(jsonpath, 'w') as outfile:
         json.dump(list(data.values()), outfile, separators=(',', ':'))
 
-write_json(get_entries(FISH_URL), 'fish.json')
-write_json(get_entries(BUGS_URL), 'bugs.json')
+write_json(get_entries(FISH_URL, get_fish), 'fish.json')
+write_json(get_entries(BUGS_URL, get_bug), 'bugs.json')
+write_json(get_entries(CREATURES_URL, get_creature), 'creatures.json')

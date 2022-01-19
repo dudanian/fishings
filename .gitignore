@@ -1,6 +1,4 @@
 .cache/
 dist/
 node_modules/
-public/images/
-public/fish.json
-public/bugs.json
+public/
