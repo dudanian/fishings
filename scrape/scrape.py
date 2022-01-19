@@ -55,7 +55,7 @@ def get_fish(elems):
 
     # XXX not sure if this is right
     # but I don't want to include 'River (Clifftop) Pond'
-    if entry['location'] == 'River (Clifftop) Pond':
+    if entry['location'] == 'River (Clifftop)  Pond':
         entry['location'] = 'River (Clifftop)'
 
     return entry
